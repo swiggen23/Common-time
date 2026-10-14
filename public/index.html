@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Common Time</title>
+<meta name="description" content="Find the time that works for the most people. Share one link, everyone taps their availability, no accounts.">
+<meta name="theme-color" content="#2F4BD8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232F4BD8'/%3E%3Cg fill='%23fff'%3E%3Crect x='7' y='7' width='5' height='5' rx='1' opacity='.4'/%3E%3Crect x='13.5' y='7' width='5' height='5' rx='1'/%3E%3Crect x='20' y='7' width='5' height='5' rx='1' opacity='.4'/%3E%3Crect x='7' y='13.5' width='5' height='5' rx='1'/%3E%3Crect x='13.5' y='13.5' width='5' height='5' rx='1'/%3E%3Crect x='20' y='13.5' width='5' height='5' rx='1'/%3E%3Crect x='7' y='20' width='5' height='5' rx='1' opacity='.4'/%3E%3Crect x='13.5' y='20' width='5' height='5' rx='1'/%3E%3Crect x='20' y='20' width='5' height='5' rx='1' opacity='.4'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{
+  --bg:#F4F6F8; --surface:#FFFFFF; --ink:#17202A; --muted:#56636E; --faint:#A9B3BB; --line:#DCE2E7; --track:#E6EAEE;
+  --accent:#2F4BD8; --accent-ink:#FFFFFF; --accent-soft:#E4E9FB;
+  --yes:#1E8A57; --yes-ink:#17683F; --yes-soft:#DCF2E5;
+  --maybe:#A86E07; --maybe-bar:#D99A2B; --maybe-ink:#8A5A05; --maybe-soft:#FBEFD4;
+  --no:#6B7782; --no-soft:#E9EDF0;
+  --danger:#B3261E; --danger-soft:#FBE4E2;
+  --dark-card:#17202A; --dark-card-ink:#FFFFFF; --dark-card-muted:#C9D2D9;
+  --f-display:"Bricolage Grotesque","Avenir Next",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F151B; --surface:#18212A; --ink:#E8EEF2; --muted:#9AA8B3; --faint:#5A6873; --line:#2B3843; --track:#26323C;
+  --accent:#8199FF; --accent-ink:#0C1433; --accent-soft:#1F2A52;
+  --yes:#3FBF80; --yes-ink:#7FDCAB; --yes-soft:#16382A;
+  --maybe:#E0A63E; --maybe-bar:#E0A63E; --maybe-ink:#F0C47A; --maybe-soft:#3A2D12;
+  --no:#7D8B96; --no-soft:#232F39;
+  --danger:#FF8A80; --danger-soft:#3A1C1A;
+  --dark-card:#24313D; --dark-card-ink:#FFFFFF; --dark-card-muted:#B9C5CE;
+  color-scheme:dark;
+}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+button,input,textarea,select{font:inherit;color:inherit}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.1;text-wrap:balance}
+p{margin:0}
+.wrap{max-width:560px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+.pad{padding-left:20px;padding-right:20px}
+.label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.xs{font-size:13px}
+.tnum{font-variant-numeric:tabular-nums}
+.stack{display:flex;flex-direction:column}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.between{justify-content:space-between}
+.grow{flex:1;min-width:0}
+
+/* buttons */
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:10px 16px;min-height:44px;font-weight:700;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--faint)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.big{padding:15px 18px;font-size:17px;width:100%}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink)}
+.btn.danger{color:var(--danger)}
+.btn.dashed{border-style:dashed;border-color:var(--faint);background:transparent;color:var(--muted)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.link{background:none;border:0;padding:0;color:var(--accent);font-weight:700;cursor:pointer;text-decoration:none}
+
+/* brand */
+.topbar{display:flex;justify-content:space-between;align-items:center;padding-top:calc(16px + env(safe-area-inset-top));padding-bottom:8px}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:700;font-size:17px;text-decoration:none;color:var(--ink)}
+.brand-mark{width:26px;height:26px;border-radius:7px;background:var(--accent);display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:5px}
+.brand-mark i{background:var(--accent-ink);border-radius:1px;opacity:.4}
+.brand-mark i.on{opacity:1}
+
+/* inputs */
+.field{display:flex;flex-direction:column;gap:6px}
+.input{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:12px;font-size:16px;width:100%;min-width:0}
+.input.strong{border:2px solid var(--accent);font-size:18px;padding:14px}
+textarea.input{resize:vertical;min-height:72px}
+.opt-tag{font-weight:400;text-transform:none;letter-spacing:0}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+
+/* home */
+.hero{display:flex;flex-direction:column;gap:10px;padding-top:20px;padding-bottom:8px}
+.hero h1{font-size:clamp(32px,8vw,42px)}
+.steps{display:grid;gap:10px}
+.step{display:flex;gap:12px;align-items:flex-start}
+.step-n{width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}
+.poll-row{display:flex;justify-content:space-between;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.poll-row:hover{border-color:var(--accent)}
+.chip{display:inline-flex;align-items:center;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700;white-space:nowrap}
+.chip.blue{background:var(--accent-soft);color:var(--accent)}
+.chip.green{background:var(--yes-soft);color:var(--yes-ink)}
+.chip.gray{background:var(--no-soft);color:var(--muted)}
+
+/* calendar */
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}
+.cal-grid .dow{font-size:11px;color:var(--muted);font-weight:700;padding-bottom:2px}
+.day{border:1px solid transparent;background:transparent;border-radius:8px;min-height:40px;cursor:pointer;font-size:15px;font-variant-numeric:tabular-nums}
+.day:hover:not(:disabled){border-color:var(--line)}
+.day.today{border-color:var(--accent)}
+.day.sel{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.day:disabled{color:var(--faint);cursor:default}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer;display:grid;place-items:center;font-size:18px;color:var(--ink)}
+.icon-btn:disabled{opacity:.35;cursor:default}
+.time-pill{display:inline-flex;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:2px 2px 2px 12px;min-height:44px}
+.time-pill input{border:0;background:transparent;padding:6px 2px;font-weight:700;font-size:15px;width:auto}
+.x{border:0;background:transparent;cursor:pointer;width:36px;height:36px;border-radius:50%;color:var(--muted);font-size:20px;line-height:1}
+.x:hover{background:var(--no-soft)}
+.preview{display:flex;flex-wrap:wrap;gap:6px}
+.pchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:14px;cursor:pointer}
+.pchip.off{text-decoration:line-through;color:var(--faint);background:transparent}
+
+/* sticky bars */
+.sticky-head{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line);padding-top:calc(14px + env(safe-area-inset-top));padding-bottom:12px}
+.bottom-bar{position:sticky;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--line);padding-top:12px;padding-bottom:calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;margin-top:auto}
+.progress{flex:1;height:6px;border-radius:3px;background:var(--track);overflow:hidden}
+.progress > div{height:100%;background:var(--accent);transition:width .25s}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:999px;padding:4px;gap:4px}
+.tab{border:0;background:transparent;border-radius:999px;min-height:40px;font-weight:700;color:var(--muted);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+/* options */
+.opt{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.opt.needs{border:2px dashed var(--accent)}
+.opt.final{border:2px solid var(--yes)}
+.opt-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.opt-time{font-weight:700;font-size:17px}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.seg button{border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:10px;min-height:46px;font-weight:700;font-size:15px;cursor:pointer}
+.seg button:hover{border-color:var(--faint)}
+.seg button[aria-pressed="true"]{border-color:transparent;color:#fff}
+.seg button.y[aria-pressed="true"]{background:var(--yes)}
+.seg button.m[aria-pressed="true"]{background:var(--maybe)}
+.seg button.n[aria-pressed="true"]{background:var(--no)}
+@media (prefers-color-scheme: dark){.seg button[aria-pressed="true"]{color:#0F151B}}
+.seg button:disabled{cursor:not-allowed;opacity:.6}
+
+/* results */
+.bar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--track)}
+.bar.thick{height:10px;border-radius:5px}
+.bar .by{background:var(--yes)}
+.bar .bm{background:var(--maybe-bar)}
+.top-card{border:2px solid var(--accent);border-radius:16px;padding:16px;background:var(--surface);display:flex;flex-direction:column;gap:12px}
+.names b.y{color:var(--yes-ink)} .names b.m{color:var(--maybe-ink)} .names b.n{color:var(--muted)}
+details.rank{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+details.rank summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:8px}
+details.rank summary::-webkit-details-marker{display:none}
+.grid-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;font-size:14px;min-width:100%}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+th{font-size:12px;color:var(--muted);vertical-align:bottom;font-weight:700}
+.sticky-col{position:sticky;left:0;background:var(--surface);text-align:left;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.cell{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:7px;font-weight:700;font-size:13px}
+.cell.y{background:var(--yes-soft);color:var(--yes-ink)} .cell.m{background:var(--maybe-soft);color:var(--maybe-ink)} .cell.n{background:var(--no-soft);color:var(--muted)} .cell.u{color:var(--faint)}
+
+/* final */
+.final-card{background:var(--dark-card);color:var(--dark-card-ink);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.final-card .eyebrow{color:#9FE0BC}
+.cal-tile{background:#fff;color:#17202A;border-radius:12px;width:64px;padding:8px 0;display:flex;flex-direction:column;align-items:center;flex:none}
+.cal-tile b{font-family:var(--f-display);font-size:28px;line-height:1}
+.cal-tile span{font-size:12px;font-weight:700;text-transform:uppercase;color:#2F4BD8}
+
+/* misc */
+.notice{border-radius:12px;padding:12px 14px;background:var(--accent-soft);font-size:15px}
+.notice.warn{background:var(--maybe-soft)}
+.notice.err{background:var(--danger-soft);color:var(--danger)}
+.confirm{background:var(--danger-soft);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.copybox{display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:6px 6px 6px 12px}
+.copybox code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-family:ui-monospace,Menlo,monospace}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;z-index:20;max-width:calc(100% - 32px);text-align:center}
+.spinner{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite;margin:40px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+.gap4{gap:4px}.gap6{gap:6px}.gap8{gap:8px}.gap10{gap:10px}.gap12{gap:12px}.gap14{gap:14px}.gap16{gap:16px}.gap20{gap:20px}
+.pt8{padding-top:8px}.pt16{padding-top:16px}.pb24{padding-bottom:24px}.pb40{padding-bottom:40px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="spinner" role="status" aria-label="Loading"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(() => {
+"use strict";
+/* ============ utilities ============ */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const pad = (n) => String(n).padStart(2, "0");
+const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parseYmd = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const rid = () => Math.random().toString(36).slice(2, 10).padEnd(8, "0");
+const ORIGIN = location.origin;
+
+const LS = {
+  get(k, d = null) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem(k); } catch {} },
+};
+const orgToken = (pid) => LS.get("ct.org." + pid);
+const myCreds = (pid) => LS.get("ct.me." + pid);
+function remember(pid, title, role) {
+  const list = LS.get("ct.recent", []).filter((x) => x.id !== pid);
+  const prev = LS.get("ct.recent", []).find((x) => x.id === pid);
+  const roles = new Set([...(prev?.roles || []), role].filter(Boolean));
+  list.unshift({ id: pid, title, roles: [...roles], at: Date.now() });
+  LS.set("ct.recent", list.slice(0, 30));
+}
+function forget(pid) { LS.set("ct.recent", LS.get("ct.recent", []).filter((x) => x.id !== pid)); LS.del("ct.org." + pid); LS.del("ct.me." + pid); }
+
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2400); }
+async function copy(text, ok = "Copied") {
+  try { await navigator.clipboard.writeText(text); toast(ok); }
+  catch { const ta = document.createElement("textarea"); ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); let done = false; try { done = document.execCommand("copy"); } catch {} ta.remove(); toast(done ? ok : "Press and hold the link to copy it"); }
+}
+async function api(path, { method = "GET", body, headers = {} } = {}) {
+  const res = await fetch("/api" + path, { method, headers: { "content-type": "application/json", ...headers }, body: body ? JSON.stringify(body) : undefined });
+  let data = {}; try { data = await res.json(); } catch {}
+  if (!res.ok) { const e = new Error(data.error || "Something went wrong. Try again."); e.status = res.status; throw e; }
+  return data;
+}
+
+/* ============ formatting ============ */
+const optDate = (o) => (o.start ? new Date(o.start) : parseYmd(o.date));
+const optDay = (o) => (o.start ? ymd(new Date(o.start)) : o.date);
+const fmtTime = (d) => d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+function optTime(o) { return o.start ? fmtTime(new Date(o.start)) : "Any time"; }
+function optRange(o, dur) {
+  if (!o.start) return "Any time";
+  const s = new Date(o.start);
+  if (!dur) return fmtTime(s);
+  return `${fmtTime(s)} – ${fmtTime(new Date(s.getTime() + dur * 60000))}`;
+}
+const dayLong = (key) => parseYmd(key).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+const dayShort = (key) => parseYmd(key).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+const durLabel = (m) => (!m ? "" : m % 60 === 0 ? `${m / 60} hr` : m > 60 ? `${(m / 60).toFixed(1)} hr` : `${m} min`);
+const sortOpts = (opts) => [...opts].sort((a, b) => optDate(a) - optDate(b));
+const tzName = () => { try { return new Intl.DateTimeFormat(undefined, { timeZoneName: "short" }).formatToParts(new Date()).find((p) => p.type === "timeZoneName")?.value || ""; } catch { return ""; } };
+
+/* ============ routing ============ */
+const S = { view: "loading", pid: null, poll: null, votes: [], canManage: false, me: null, tab: "vote", err: "", form: null, confirmDelete: false, showGrid: false, saving: false, savedAt: null, dirty: false, created: null, loadedAt: 0 };
+
+function parseRoute() {
+  const q = new URLSearchParams(location.search);
+  const pid = q.get("p");
+  // Move secret tokens out of the URL into this browser, then clean the address bar.
+  let cleaned = false;
+  if (pid && q.get("m")) { LS.set("ct.org." + pid, q.get("m")); q.delete("m"); cleaned = true; }
+  if (pid && q.get("g")) { const [id, token] = q.get("g").split("."); if (id && token) LS.set("ct.me." + pid, { id, token }); q.delete("g"); cleaned = true; }
+  if (cleaned) history.replaceState(null, "", "/?" + q.toString());
+  if (q.has("new")) return { view: "create" };
+  if (pid) return { view: "poll", pid, tab: q.get("t") === "results" ? "results" : "vote" };
+  return { view: "home" };
+}
+function go(url, replace = false) { (replace ? history.replaceState : history.pushState).call(history, null, "", url); route(); window.scrollTo(0, 0); }
+window.addEventListener("popstate", route);
+
+async function route() {
+  const r = parseRoute();
+  stopPolling();
+  S.err = ""; S.confirmDelete = false;
+  if (r.view === "home") { S.view = "home"; render(); return; }
+  if (r.view === "create") { S.view = "create"; S.form = S.form && !S.form.id ? S.form : blankForm(); render(); return; }
+  S.view = "poll"; S.pid = r.pid; S.tab = r.tab;
+  if (!S.poll || S.poll.id !== r.pid) { S.poll = null; S.me = null; render(); }
+  await loadPoll();
+  startPolling();
+}
+
+/* ============ data ============ */
+async function loadPoll(quiet = false) {
+  try {
+    const tok = orgToken(S.pid);
+    const data = await api(`/polls/${S.pid}`, { headers: tok ? { "x-manage-token": tok } : {} });
+    S.poll = data.poll; S.votes = data.votes; S.canManage = data.canManage; S.loadedAt = Date.now();
+    const cred = myCreds(S.pid);
+    const mine = cred && S.votes.find((v) => v.id === cred.id);
+    if (cred && !mine) { LS.del("ct.me." + S.pid); }
+    // Keep local edits that haven't saved yet; otherwise take the server copy.
+    if (mine && !(S.dirty || S.saving)) S.me = JSON.parse(JSON.stringify(mine));
+    else if (!mine) S.me = null;
+    remember(S.pid, S.poll.title, S.canManage ? "organizer" : mine ? "guest" : "");
+    if (S.view === "poll" && !(quiet && isTyping())) render();
+  } catch (e) {
+    if (!quiet) { S.poll = null; S.err = e.status === 404 ? "This poll doesn't exist anymore. The organizer may have deleted it." : e.message; render(); }
+  }
+}
+const isTyping = () => { const a = document.activeElement; return a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA" || a.tagName === "SELECT"); };
+let pollTimer = null;
+function startPolling() { stopPolling(); pollTimer = setInterval(() => { if (document.visibilityState === "visible" && S.view === "poll" && S.poll) loadPoll(true); }, 15000); }
+function stopPolling() { clearInterval(pollTimer); }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && S.view === "poll" && S.poll && Date.now() - S.loadedAt > 5000) loadPoll(true); });
+
+/* saving my answers: debounced, one request at a time */
+let saveTimer = null, saveAgain = false;
+function queueSave() { S.dirty = true; S.savedAt = "pending"; paintSaved(); clearTimeout(saveTimer); saveTimer = setTimeout(flushSave, 450); }
+async function flushSave() {
+  if (!S.me) return;
+  if (S.saving) { saveAgain = true; return; }
+  const cred = myCreds(S.pid); if (!cred) return;
+  S.saving = true; S.dirty = false;
+  try {
+    const { vote } = await api(`/polls/${S.pid}/votes/${S.me.id}`, { method: "PUT", headers: { "x-voter-token": cred.token }, body: { name: S.me.name, answers: S.me.answers, note: S.me.note, going: S.me.going } });
+    const i = S.votes.findIndex((v) => v.id === vote.id); if (i >= 0) S.votes[i] = vote; else S.votes.push(vote);
+    S.savedAt = new Date();
+  } catch (e) { S.savedAt = "error"; S.dirty = true; toast(e.message); }
+  S.saving = false; paintSaved();
+  if (saveAgain) { saveAgain = false; flushSave(); }
+}
+window.addEventListener("beforeunload", (e) => { if (S.dirty || S.saving) { flushSave(); e.preventDefault(); } });
+function paintSaved() {
+  const el = $("#saved"); if (!el) return;
+  if (S.savedAt === "pending" || S.saving) { el.textContent = "Saving…"; el.style.color = "var(--muted)"; }
+  else if (S.savedAt === "error") { el.textContent = "Not saved. Tap again"; el.style.color = "var(--danger)"; }
+  else if (S.savedAt) { el.textContent = "Saved"; el.style.color = "var(--yes)"; }
+  else { el.textContent = ""; }
+}
+
+/* ============ tallies ============ */
+function tally(poll, votes) {
+  const t = {}; let best = 0;
+  for (const o of poll.options) {
+    const r = { y: [], m: [], n: [] };
+    for (const v of votes) { const a = v.answers?.[o.id]; if (a && r[a]) r[a].push(v.name); }
+    const score = r.y.length + r.m.length * 0.5;
+    t[o.id] = { ...r, score }; if (score > best) best = score;
+  }
+  const answered = votes.filter((v) => Object.keys(v.answers || {}).length > 0);
+  const ranked = sortOpts(poll.options).sort((a, b) => t[b.id].score - t[a.id].score || t[b.id].y.length - t[a.id].y.length);
+  return { t, best, answered, ranked };
+}
+
+/* ============ templates ============ */
+const brand = () => `<a class="brand" href="/" data-nav="/"><span class="brand-mark" aria-hidden="true"><i></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i></i></span>Common Time</a>`;
+
+function render() {
+  const app = $("#app");
+  document.title = S.view === "poll" && S.poll ? `${S.poll.title} · Common Time` : "Common Time";
+  if (S.view === "home") app.innerHTML = viewHome();
+  else if (S.view === "create") app.innerHTML = viewCreate();
+  else if (S.view === "shared") app.innerHTML = viewShared();
+  else if (S.view === "poll") {
+    if (S.err) app.innerHTML = viewError();
+    else if (!S.poll) app.innerHTML = `<div class="spinner" role="status" aria-label="Loading"></div>`;
+    else if (!S.me && S.tab === "vote" && !S.poll.finalId) app.innerHTML = viewJoin();
+    else app.innerHTML = viewPoll();
+  } else app.innerHTML = `<div class="spinner"></div>`;
+  paintSaved();
+}
+
+function viewError() {
+  return `<div class="pad topbar">${brand()}</div>
+  <div class="pad stack gap16 pt16"><h1 style="font-size:28px">Can't open this poll</h1><p class="muted">${esc(S.err)}</p>
+  <div class="row"><a class="btn primary" href="/?new" data-nav="/?new">Create a new poll</a><a class="btn" href="/" data-nav="/">Home</a></div></div>`;
+}
+
+function viewHome() {
+  const recent = LS.get("ct.recent", []);
+  return `<div class="pad topbar">${brand()}</div>
+  <div class="pad stack gap20 pb40">
+    <div class="hero">
+      <h1>Find the time that works for the most people.</h1>
+      <p class="muted" style="font-size:17px;max-width:40ch">Propose a few dates, share one link, and everyone taps their availability. No accounts, no passwords.</p>
+    </div>
+    <a class="btn primary big" href="/?new" data-nav="/?new">Create a poll</a>
+    <div class="card stack gap12">
+      <div class="step"><span class="step-n">1</span><div><b>Pick dates and times</b><p class="muted small">Tap days on a calendar and add start times.</p></div></div>
+      <div class="step"><span class="step-n">2</span><div><b>Share one link</b><p class="muted small">Guests enter a name and tap Yes, Not ideal or No. Answers save as they tap.</p></div></div>
+      <div class="step"><span class="step-n">3</span><div><b>Lock in the best time</b><p class="muted small">See who can make each option, then add it to calendars.</p></div></div>
+    </div>
+    ${recent.length ? `<div class="stack gap10"><span class="label">Your polls on this device</span>
+      ${recent.map((r) => `<a class="card poll-row" href="/?p=${esc(r.id)}" data-nav="/?p=${esc(r.id)}"><span class="grow"><b>${esc(r.title)}</b></span>${(r.roles || []).includes("organizer") ? `<span class="chip blue">Organizer</span>` : (r.roles || []).includes("guest") ? `<span class="chip gray">Answered</span>` : ""}</a>`).join("")}</div>` : ""}
+  </div>`;
+}
+
+/* ---------- create / edit ---------- */
+function blankForm(poll) {
+  const now = new Date();
+  if (!poll) return { id: null, title: "", note: "", location: "", duration: 90, dates: [], times: ["18:30"], anyTime: false, skip: [], month: ymd(new Date(now.getFullYear(), now.getMonth(), 1)), busy: false, err: "" };
+  const opts = poll.options;
+  const keyOf = (o) => `${optDay(o)}|${o.start ? `${pad(new Date(o.start).getHours())}:${pad(new Date(o.start).getMinutes())}` : ""}`;
+  const dates = [...new Set(opts.map(optDay))].sort();
+  const times = [...new Set(opts.filter((o) => o.start).map((o) => keyOf(o).split("|")[1]))].sort();
+  const anyTime = opts.every((o) => !o.start);
+  const f = { id: poll.id, title: poll.title, note: poll.note, location: poll.location, duration: poll.duration || 90, dates, times: times.length ? times : ["18:30"], anyTime, skip: [], month: ymd(new Date(parseYmd(dates[0] || ymd(now)).getFullYear(), parseYmd(dates[0] || ymd(now)).getMonth(), 1)), busy: false, err: "", idByKey: {} };
+  opts.forEach((o) => (f.idByKey[keyOf(o)] = o.id));
+  const have = new Set(opts.map(keyOf));
+  f.skip = combos(f).filter((c) => !have.has(c));
+  return f;
+}
+function combos(f) { const ts = f.anyTime ? [""] : [...new Set(f.times.filter(Boolean))].sort(); const out = []; [...f.dates].sort().forEach((d) => ts.forEach((t) => out.push(`${d}|${t}`))); return out; }
+function comboLabel(c) { const [d, t] = c.split("|"); if (!t) return `${dayShort(d)}`; const [h, m] = t.split(":").map(Number); return `${dayShort(d)} · ${fmtTime(new Date(2000, 0, 1, h, m))}`; }
+
+function viewCreate() {
+  const f = S.form;
+  const m = parseYmd(f.month);
+  const first = new Date(m.getFullYear(), m.getMonth(), 1);
+  const daysIn = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+  const today = ymd(new Date());
+  const thisMonth = ymd(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+  let cells = ["S", "M", "T", "W", "T", "F", "S"].map((d) => `<span class="dow" aria-hidden="true">${d}</span>`).join("");
+  for (let i = 0; i < first.getDay(); i++) cells += `<span></span>`;
+  for (let d = 1; d <= daysIn; d++) {
+    const key = ymd(new Date(m.getFullYear(), m.getMonth(), d)); const sel = f.dates.includes(key);
+    cells += `<button type="button" class="day${sel ? " sel" : ""}${key === today ? " today" : ""}" data-day="${key}" aria-pressed="${sel}" aria-label="${esc(dayLong(key))}" ${key < today ? "disabled" : ""}>${d}</button>`;
+  }
+  const all = combos(f); const kept = all.filter((c) => !f.skip.includes(c));
+  const durs = [[30, "30 min"], [60, "1 hour"], [90, "1.5 hours"], [120, "2 hours"], [180, "3 hours"], [240, "4 hours"], [0, "Not set"]];
+  return `<div class="pad topbar"><h1 style="font-size:26px">${f.id ? "Edit poll" : "New poll"}</h1><button class="btn ghost" type="button" data-act="cancel-form">Cancel</button></div>
+  <form class="pad stack gap16 pb24" id="pollForm" novalidate>
+    <div class="field"><label class="label" for="f-title">Poll name</label>
+      <input class="input" id="f-title" maxlength="120" autocomplete="off" placeholder="Book club, team dinner, volunteer day…" value="${esc(f.title)}"></div>
+    <div class="field"><label class="label" for="f-note">Description or note <span class="opt-tag">(optional)</span></label>
+      <textarea class="input" id="f-note" maxlength="1000" rows="2" placeholder="What to bring, who's invited, anything guests should know">${esc(f.note)}</textarea></div>
+    <div class="grid2">
+      <div class="field"><label class="label" for="f-loc">Where <span class="opt-tag">(optional)</span></label>
+        <input class="input" id="f-loc" maxlength="200" placeholder="Address or video link" value="${esc(f.location)}"></div>
+      <div class="field"><label class="label" for="f-dur">How long</label>
+        <select class="input" id="f-dur">${durs.map(([v, l]) => `<option value="${v}" ${Number(f.duration) === v ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+    </div>
+    <div class="card stack gap10">
+      <div class="row between"><span class="label">Tap dates</span>
+        <div class="row gap8"><button type="button" class="icon-btn" data-mon="-1" aria-label="Previous month" ${f.month <= thisMonth ? "disabled" : ""}>‹</button>
+        <b style="min-width:120px;text-align:center">${m.toLocaleDateString(undefined, { month: "long", year: "numeric" })}</b>
+        <button type="button" class="icon-btn" data-mon="1" aria-label="Next month">›</button></div></div>
+      <div class="cal-grid">${cells}</div>
+    </div>
+    <div class="stack gap8">
+      <span class="label">${f.anyTime ? "Times" : "Start times, for every date"}</span>
+      <div class="row">
+        ${f.anyTime ? `<span class="muted small">Guests pick days only.</span>` : f.times.map((t, i) => `<span class="time-pill"><input type="time" class="f-time" data-i="${i}" value="${esc(t)}" aria-label="Start time ${i + 1}" step="900"><button type="button" class="x" data-rmtime="${i}" aria-label="Remove this time">×</button></span>`).join("")}
+        ${f.anyTime ? "" : `<button type="button" class="btn dashed" data-act="add-time">+ Time</button>`}
+        <button type="button" class="btn dashed" data-act="any-time" aria-pressed="${f.anyTime}">${f.anyTime ? "Add start times" : "No set time"}</button>
+      </div>
+    </div>
+    ${all.length ? `<div class="stack gap8"><span class="label">Options guests will see · ${kept.length}</span>
+      <div class="preview">${all.map((c) => `<button type="button" class="pchip${f.skip.includes(c) ? " off" : ""}" data-skip="${esc(c)}" aria-pressed="${!f.skip.includes(c)}">${esc(comboLabel(c))}</button>`).join("")}</div>
+      <span class="muted xs">Tap an option to leave it out.</span></div>` : ""}
+    ${f.err ? `<div class="notice err">${esc(f.err)}</div>` : ""}
+  </form>
+  <div class="pad bottom-bar">
+    <span class="small muted">${kept.length ? `<b style="color:var(--ink)">${kept.length} option${kept.length === 1 ? "" : "s"}</b>${f.anyTime ? "" : ` · ${f.dates.length} date${f.dates.length === 1 ? "" : "s"} × ${[...new Set(f.times.filter(Boolean))].length} time${[...new Set(f.times.filter(Boolean))].length === 1 ? "" : "s"}`}` : "Pick at least one date"} · times in ${esc(tzName())}</span>
+    <button class="btn primary big" type="button" data-act="save-form" ${f.busy ? "disabled" : ""}>${f.busy ? "Saving…" : f.id ? "Save changes" : "Create and get link"}</button>
+  </div>`;
+}
+
+async function saveForm() {
+  const f = S.form;
+  if (!f.title.trim()) { f.err = "Give the poll a name."; render(); $("#f-title")?.focus(); return; }
+  const keep = combos(f).filter((c) => !f.skip.includes(c));
+  if (!keep.length) { f.err = "Pick at least one date on the calendar."; render(); return; }
+  if (keep.length > 60) { f.err = "That's more than 60 options. Remove some dates or times."; render(); return; }
+  const options = keep.map((c) => {
+    const [d, t] = c.split("|"); const id = f.idByKey?.[c] || rid();
+    if (!t) return { id, date: d, start: null };
+    const [y, mo, da] = d.split("-").map(Number); const [h, mi] = t.split(":").map(Number);
+    return { id, date: d, start: new Date(y, mo - 1, da, h, mi).toISOString() };
+  });
+  const body = { title: f.title, note: f.note, location: f.location, duration: Number(f.duration) || 0, options, tz: Intl.DateTimeFormat().resolvedOptions().timeZone || "" };
+  f.busy = true; f.err = ""; render();
+  try {
+    if (f.id) {
+      await api(`/polls/${f.id}`, { method: "PUT", headers: { "x-manage-token": orgToken(f.id) }, body });
+      const pid = f.id; S.form = null; toast("Poll updated"); go(`/?p=${pid}&t=results`);
+    } else {
+      const { poll, manageToken } = await api(`/polls`, { method: "POST", body });
+      LS.set("ct.org." + poll.id, manageToken); remember(poll.id, poll.title, "organizer");
+      S.form = null; S.created = { poll, manageToken }; S.view = "shared"; history.pushState(null, "", `/?p=${poll.id}`); render(); window.scrollTo(0, 0);
+    }
+  } catch (e) { f.busy = false; f.err = e.message; render(); }
+}
+
+/* ---------- shared (after create) ---------- */
+function viewShared() {
+  const { poll, manageToken } = S.created;
+  const share = `${ORIGIN}/?p=${poll.id}`;
+  const manage = `${ORIGIN}/?p=${poll.id}&m=${manageToken}`;
+  return `<div class="pad topbar">${brand()}</div>
+  <div class="pad stack gap20 pb40">
+    <div class="stack gap8 pt8"><span class="label" style="color:var(--yes)">Poll created</span><h1 style="font-size:30px">${esc(poll.title)}</h1></div>
+    <div class="card stack gap10">
+      <b>Invite link</b><p class="muted small">Send this to everyone. They only need a name to answer.</p>
+      <div class="copybox"><code>${esc(share)}</code><button class="btn primary" type="button" data-copy="${esc(share)}" data-ok="Invite link copied">Copy</button></div>
+      ${navigator.share ? `<button class="btn" type="button" data-act="native-share">Share…</button>` : ""}
+    </div>
+    <div class="card stack gap10" style="border-color:var(--maybe)">
+      <b>Your organizer link</b>
+      <p class="muted small">This browser remembers you as the organizer. Save this private link too, so you can edit the poll or lock in a time from another device. Don't share it.</p>
+      <div class="copybox"><code>${esc(manage)}</code><button class="btn" type="button" data-copy="${esc(manage)}" data-ok="Organizer link copied">Copy</button></div>
+    </div>
+    <div class="stack gap10">
+      <a class="btn primary big" href="/?p=${esc(poll.id)}" data-nav="/?p=${esc(poll.id)}">Add my own availability</a>
+      <a class="btn big" href="/?p=${esc(poll.id)}&t=results" data-nav="/?p=${esc(poll.id)}&t=results">Go to results</a>
+    </div>
+  </div>`;
+}
+
+/* ---------- join ---------- */
+function viewJoin() {
+  const p = S.poll; const days = [...new Set(p.options.map(optDay))].sort();
+  const range = days.length > 1 ? `${parseYmd(days[0]).toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${parseYmd(days[days.length - 1]).toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : dayShort(days[0]);
+  const { answered } = tally(p, S.votes);
+  return `<div class="pad topbar">${brand()}</div>
+  <form class="pad stack gap20 pb24" id="joinForm" style="flex:1">
+    <div class="stack gap10 pt8">
+      <span class="small muted">You're invited to</span>
+      <h1 style="font-size:34px">${esc(p.title)}</h1>
+      ${p.note ? `<p style="font-size:16px;max-width:42ch;white-space:pre-line">${esc(p.note)}</p>` : ""}
+      ${p.location || p.duration ? `<p class="muted small">${[p.location && esc(p.location), p.duration && durLabel(p.duration)].filter(Boolean).join(" · ")}</p>` : ""}
+    </div>
+    <div class="card" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center">
+      <div class="stack gap4"><b style="font-family:var(--f-display);font-size:22px">${p.options.length}</b><span class="xs muted">time options</span></div>
+      <div class="stack gap4"><b style="font-family:var(--f-display);font-size:22px">${esc(range)}</b><span class="xs muted">dates</span></div>
+      <div class="stack gap4"><b style="font-family:var(--f-display);font-size:22px">${answered.length}</b><span class="xs muted">answered</span></div>
+    </div>
+    <div class="field">
+      <label class="label" for="j-name">Your name</label>
+      <input class="input strong" id="j-name" maxlength="60" autocomplete="name" placeholder="First name is fine" value="${esc(LS.get("ct.name", ""))}">
+      <span class="xs muted">No account or password. This device remembers you so you can change answers later.</span>
+    </div>
+    ${S.err ? `<div class="notice err">${esc(S.err)}</div>` : ""}
+    <div class="stack gap10" style="margin-top:auto">
+      <button class="btn primary big" type="submit" id="j-go">Pick my times</button>
+      <span class="small muted" style="text-align:center">Just looking? <a href="/?p=${esc(p.id)}&t=results" data-nav="/?p=${esc(p.id)}&t=results">See results</a></span>
+      <span class="xs muted" style="text-align:center">Answered on another device? Open the personal link you saved there.</span>
+    </div>
+  </form>`;
+}
+async function join(name) {
+  name = name.trim(); if (!name) { $("#j-name")?.focus(); toast("Enter your name"); return; }
+  const btn = $("#j-go"); if (btn) { btn.disabled = true; btn.textContent = "Joining…"; }
+  try {
+    const { vote, voterToken } = await api(`/polls/${S.pid}/votes`, { method: "POST", body: { name } });
+    LS.set("ct.me." + S.pid, { id: vote.id, token: voterToken }); LS.set("ct.name", name);
+    remember(S.pid, S.poll.title, "guest");
+    S.votes.push(vote); S.me = JSON.parse(JSON.stringify(vote)); S.tab = "vote"; S.err = ""; render(); window.scrollTo(0, 0);
+  } catch (e) { S.err = e.message; render(); }
+}
+
+/* ---------- poll (vote / results / final) ---------- */
+function viewPoll() {
+  const p = S.poll; const { t, best, answered, ranked } = tally(p, S.votes);
+  const opts = sortOpts(p.options); const fin = p.options.find((o) => o.id === p.finalId);
+  const me = S.me; const myAns = me?.answers || {};
+  const done = opts.filter((o) => myAns[o.id]).length;
+  const header = `<div class="pad sticky-head stack gap8">
+    <div class="row between"><span class="label">${me ? `Hi, ${esc(me.name)}` : "Common Time"}</span><span class="xs" id="saved" style="font-weight:700" aria-live="polite"></span></div>
+    <div class="row between" style="align-items:flex-start;flex-wrap:nowrap"><h1 style="font-size:26px">${esc(p.title)}</h1>
+      <a class="btn ghost" href="/" data-nav="/" style="padding:0 6px;min-height:36px" aria-label="Home">${`<span class="brand-mark" aria-hidden="true" style="width:22px;height:22px;padding:4px"><i></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i></i></span>`}</a></div>
+    ${p.location || p.duration ? `<div class="small muted">${[p.location && esc(p.location), p.duration && durLabel(p.duration)].filter(Boolean).join(" · ")}</div>` : ""}
+    ${me && !fin ? `<div class="row gap10 pt8" style="flex-wrap:nowrap"><div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="${opts.length}" aria-valuenow="${done}" aria-label="Answered"><div style="width:${(done / opts.length) * 100}%"></div></div><span class="xs tnum" style="font-weight:700">${done} of ${opts.length} answered</span></div>` : ""}
+    <div class="tabs pt8" role="tablist"><button class="tab" role="tab" data-tab="vote" aria-selected="${S.tab === "vote"}">${me ? "My answers" : "Answer"}</button><button class="tab" role="tab" data-tab="results" aria-selected="${S.tab === "results"}">Results · ${answered.length}</button></div>
+  </div>`;
+  const body = S.tab === "results" ? viewResults(p, t, best, answered, ranked, fin) : viewVote(p, t, opts, fin);
+  return header + `<div class="pad stack gap12 pt16 pb24">${fin ? viewFinal(p, fin, t) : ""}${p.note && S.tab === "vote" && !fin ? `<p class="small muted" style="white-space:pre-line">${esc(p.note)}</p>` : ""}${body}${S.canManage ? viewOrganizer(p) : ""}</div>` + viewBottom(p, fin);
+}
+
+function viewVote(p, t, opts, fin) {
+  if (!S.me) return `<div class="card stack gap10"><b>Want to answer?</b><p class="small muted">Enter your name to add your availability.</p><button class="btn primary" type="button" data-act="show-join">Add my availability</button></div>`;
+  const ans = S.me.answers || {};
+  const groups = {}; opts.forEach((o) => (groups[optDay(o)] = groups[optDay(o)] || []).push(o));
+  const firstOpen = opts.find((o) => !ans[o.id]);
+  return `${fin ? `<span class="label pt8">Your original answers</span>` : `<div class="row gap8">
+      <button class="btn small" type="button" data-fill="y">I'm free for all</button>
+      <button class="btn small" type="button" data-fill="m">Rest are "not ideal"</button>
+      <button class="btn ghost small" type="button" data-fill="">Clear</button></div>`}
+    ${Object.entries(groups).map(([day, os]) => `<span class="label pt8">${esc(dayLong(day))}</span>
+      ${os.map((o) => { const c = t[o.id]; const a = ans[o.id]; const needs = !a && !fin && o === firstOpen;
+        const sum = [c.y.length && `${c.y.length} yes`, c.m.length && `${c.m.length} not ideal`, c.n.length && `${c.n.length} no`].filter(Boolean).join(" · ") || "No answers yet";
+        return `<div class="opt${needs ? " needs" : ""}${fin && fin.id === o.id ? " final" : ""}">
+        <div class="opt-head"><span class="opt-time">${esc(optTime(o))}</span>${needs ? `<span class="xs" style="font-weight:700;color:var(--accent)">Needs your answer</span>` : `<span class="xs muted">${sum}</span>`}</div>
+        <div class="seg" role="group" aria-label="${esc(dayLong(day) + ", " + optTime(o))}">
+          <button type="button" class="y" data-vote="y" data-oid="${o.id}" aria-pressed="${a === "y"}" ${fin ? "disabled" : ""}>Yes</button>
+          <button type="button" class="m" data-vote="m" data-oid="${o.id}" aria-pressed="${a === "m"}" ${fin ? "disabled" : ""}>Not ideal</button>
+          <button type="button" class="n" data-vote="n" data-oid="${o.id}" aria-pressed="${a === "n"}" ${fin ? "disabled" : ""}>No</button>
+        </div></div>`; }).join("")}`).join("")}
+    <div class="field pt8"><label class="label" for="my-note">Note for the group <span class="opt-tag">(optional)</span></label>
+      <input class="input" id="my-note" maxlength="300" placeholder="Can only stay until 8" value="${esc(S.me.note || "")}"></div>
+    <div class="grid2">
+      <div class="field"><label class="label" for="my-name">Name shown</label><input class="input" id="my-name" maxlength="60" value="${esc(S.me.name)}"></div>
+      <div class="field"><span class="label">Other devices</span><button class="btn" type="button" data-act="my-link">Copy my personal link</button></div>
+    </div>`;
+}
+
+function viewResults(p, t, best, answered, ranked, fin) {
+  if (!answered.length) return `<div class="card stack gap10" style="text-align:center;padding:28px 16px"><b>No answers yet</b><p class="small muted">Share the invite link. Results update here as people answer.</p><button class="btn" type="button" data-act="copy-invite">Copy invite link</button></div>`;
+  const total = answered.length;
+  const top = ranked[0]; const tc = t[top.id];
+  const names = (o) => { const c = t[o.id]; const missing = answered.length - c.y.length - c.m.length - c.n.length;
+    return `<div class="names stack gap6 small">
+      ${c.y.length ? `<span><b class="y">Yes:</b> ${esc(c.y.join(", "))}</span>` : ""}
+      ${c.m.length ? `<span><b class="m">Not ideal:</b> ${esc(c.m.join(", "))}</span>` : ""}
+      ${c.n.length ? `<span><b class="n">Can't:</b> ${esc(c.n.join(", "))}</span>` : ""}
+      ${missing > 0 ? `<span class="muted">${missing} skipped this time</span>` : ""}</div>`; };
+  const bar = (o, thick) => { const c = t[o.id]; return `<div class="bar${thick ? " thick" : ""}" aria-hidden="true"><div class="by" style="width:${(c.y.length / total) * 100}%"></div><div class="bm" style="width:${(c.m.length / total) * 100}%"></div></div>`; };
+  const label = (o) => `${dayShort(optDay(o))} · ${optTime(o)}`;
+  const lockBtn = (o) => (S.canManage ? (p.finalId === o.id ? `<button class="btn" type="button" data-final="">Reopen poll</button>` : `<button class="btn primary" type="button" data-final="${o.id}">Lock in this time</button>`) : "");
+  const showTop = !fin && tc.score > 0;
+  const rest = showTop ? ranked.slice(1) : ranked;
+  return `<div class="stack gap4"><h2 style="font-size:22px">${fin ? "All answers" : "Best times so far"}</h2><span class="small muted">${total} ${total === 1 ? "person" : "people"} answered · ranked by who can come</span></div>
+    ${showTop ? `<div class="top-card">
+      <div class="row between" style="align-items:flex-start;flex-wrap:nowrap"><div class="stack gap4"><span class="label" style="color:var(--accent)">Top pick</span><b style="font-family:var(--f-display);font-size:22px;line-height:1.15">${esc(label(top))}</b></div>
+      <span class="chip green tnum">${tc.y.length + tc.m.length} of ${total}</span></div>
+      ${bar(top, true)}${names(top)}${S.canManage ? lockBtn(top) + `<span class="xs muted" style="text-align:center;margin-top:-4px">Only you see this button as organizer</span>` : ""}
+    </div>` : ""}
+    ${rest.map((o) => { const c = t[o.id]; return `<details class="rank"><summary>
+      <div class="row between" style="flex-wrap:nowrap"><b>${esc(label(o))}</b><span class="xs muted tnum">${c.y.length} yes · ${c.m.length} not ideal</span></div>${bar(o)}</summary>
+      <div class="stack gap10 pt8">${names(o)}${lockBtn(o)}</div></details>`; }).join("")}
+    ${answered.some((v) => v.note) ? `<div class="stack gap6 pt8"><span class="label">Notes</span>${answered.filter((v) => v.note).map((v) => `<span class="small"><b>${esc(v.name)}:</b> ${esc(v.note)}</span>`).join("")}</div>` : ""}
+    <button class="btn" type="button" data-act="toggle-grid">${S.showGrid ? "Hide full grid" : "Full grid view"}</button>
+    ${S.showGrid ? viewGrid(p, answered) : ""}`;
+}
+
+function viewGrid(p, answered) {
+  const opts = sortOpts(p.options); const g = { y: "✓", m: "~", n: "✕" };
+  return `<div class="grid-wrap"><table>
+    <thead><tr><th class="sticky-col">Person</th>${opts.map((o) => `<th>${esc(dayShort(optDay(o)))}<br>${esc(optTime(o))}</th>`).join("")}</tr></thead>
+    <tbody>${answered.map((v) => `<tr><td class="sticky-col">${esc(v.name)}</td>${opts.map((o) => { const a = v.answers[o.id] || "u"; return `<td><span class="cell ${a}" aria-label="${a === "y" ? "yes" : a === "m" ? "not ideal" : a === "n" ? "no" : "no answer"}">${g[a] || "·"}</span></td>`; }).join("")}</tr>`).join("")}</tbody>
+  </table></div>`;
+}
+
+function viewFinal(p, fin, t) {
+  const d = optDate(fin); const going = S.votes.filter((v) => v.going === "yes").length;
+  const c = t[fin.id];
+  return `<div class="final-card">
+    <span class="label eyebrow">It's set</span>
+    <div class="row gap14" style="flex-wrap:nowrap"><div class="cal-tile" aria-hidden="true"><span>${d.toLocaleDateString(undefined, { month: "short" })}</span><b>${d.getDate()}</b></div>
+      <div class="stack gap4"><b style="font-size:18px">${esc(d.toLocaleDateString(undefined, { weekday: "long" }))}, ${esc(optRange(fin, p.duration))}</b>${p.location ? `<span class="small" style="color:var(--dark-card-muted)">${esc(p.location)}</span>` : ""}</div></div>
+    <span class="small" style="color:var(--dark-card-muted)">${c.y.length + c.m.length} said they could make it${going ? ` · ${going} confirmed` : ""}</span>
+  </div>
+  <div class="stack gap8"><span class="label">Add it to your calendar</span>
+    <div class="grid2"><a class="btn" href="${esc(gcal(p, fin))}" target="_blank" rel="noopener">Google</a><button class="btn" type="button" data-act="ics">Apple / Outlook</button></div></div>
+  ${S.me ? `<div class="card stack gap10"><span class="label">Are you coming?</span><div class="seg" style="grid-template-columns:1fr 1fr">
+    <button type="button" class="y" data-going="yes" aria-pressed="${S.me.going === "yes"}">I'll be there</button>
+    <button type="button" class="n" data-going="no" aria-pressed="${S.me.going === "no"}">Can't make it</button></div></div>` : ""}`;
+}
+
+function viewOrganizer(p) {
+  return `<div class="card stack gap10" style="margin-top:12px"><span class="label">Organizer tools</span>
+    <div class="row gap8">
+      <button class="btn" type="button" data-act="copy-invite">Copy invite link</button>
+      <button class="btn" type="button" data-act="edit">Edit poll</button>
+      <button class="btn" type="button" data-act="copy-manage">Copy organizer link</button>
+      ${p.finalId ? `<button class="btn" type="button" data-final="">Reopen poll</button>` : ""}
+      <button class="btn ghost danger" type="button" data-act="ask-delete">Delete</button>
+    </div>
+    ${S.confirmDelete ? `<div class="confirm"><b>Delete this poll and everyone's answers?</b><span class="small">This can't be undone.</span><div class="row gap8"><button class="btn danger" type="button" data-act="delete">Delete poll</button><button class="btn ghost" type="button" data-act="cancel-delete">Keep it</button></div></div>` : ""}
+  </div>`;
+}
+
+function viewBottom(p, fin) {
+  if (S.tab === "vote" && S.me && !fin) return `<div class="pad bottom-bar" style="flex-direction:row;align-items:center;gap:10px"><span class="xs muted grow">Answers save as you tap. Come back anytime to change them.</span><button class="btn primary" type="button" data-tab="results">See results</button></div>`;
+  return "";
+}
+
+/* calendar exports */
+function evtTimes(p, o) {
+  if (o.start) { const s = new Date(o.start); return { s, e: new Date(s.getTime() + (p.duration || 60) * 60000), allDay: false }; }
+  const s = parseYmd(o.date); const e = new Date(s); e.setDate(e.getDate() + 1); return { s, e, allDay: true };
+}
+const utc = (d) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+const dOnly = (d) => ymd(d).replace(/-/g, "");
+function gcal(p, o) {
+  const { s, e, allDay } = evtTimes(p, o);
+  const q = new URLSearchParams({ action: "TEMPLATE", text: p.title, dates: allDay ? `${dOnly(s)}/${dOnly(e)}` : `${utc(s)}/${utc(e)}`, details: [p.note, `${ORIGIN}/?p=${p.id}`].filter(Boolean).join("\n\n"), location: p.location || "" });
+  return "https://calendar.google.com/calendar/render?" + q.toString();
+}
+function downloadIcs(p, o) {
+  const { s, e, allDay } = evtTimes(p, o);
+  const icsEsc = (x) => String(x || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/[,;]/g, (m) => "\\" + m);
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Common Time//EN", "BEGIN:VEVENT", `UID:${p.id}-${o.id}@commontime`, `DTSTAMP:${utc(new Date())}`,
+    allDay ? `DTSTART;VALUE=DATE:${dOnly(s)}` : `DTSTART:${utc(s)}`, allDay ? `DTEND;VALUE=DATE:${dOnly(e)}` : `DTEND:${utc(e)}`,
+    `SUMMARY:${icsEsc(p.title)}`, p.location ? `LOCATION:${icsEsc(p.location)}` : "", `DESCRIPTION:${icsEsc([p.note, `${ORIGIN}/?p=${p.id}`].filter(Boolean).join("\n\n"))}`, "END:VEVENT", "END:VCALENDAR"].filter(Boolean);
+  const blob = new Blob([lines.join("\r\n")], { type: "text/calendar" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = (p.title.replace(/[^\w\- ]+/g, "").trim() || "event") + ".ics"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+/* ============ events ============ */
+document.addEventListener("click", async (e) => {
+  const nav = e.target.closest("[data-nav]");
+  if (nav && !e.metaKey && !e.ctrlKey) { e.preventDefault(); go(nav.getAttribute("data-nav")); return; }
+  const b = e.target.closest("button"); if (!b) return;
+  const f = S.form;
+
+  if (b.dataset.copy) return copy(b.dataset.copy, b.dataset.ok);
+  if (b.dataset.tab) { S.tab = b.dataset.tab; const q = new URLSearchParams(location.search); if (S.tab === "results") q.set("t", "results"); else q.delete("t"); history.replaceState(null, "", "/?" + q.toString()); render(); window.scrollTo(0, 0); return; }
+
+  // create form
+  if (b.dataset.day && f) { const k = b.dataset.day; f.dates = f.dates.includes(k) ? f.dates.filter((d) => d !== k) : [...f.dates, k]; f.err = ""; return render(); }
+  if (b.dataset.mon && f) { const m = parseYmd(f.month); f.month = ymd(new Date(m.getFullYear(), m.getMonth() + Number(b.dataset.mon), 1)); return render(); }
+  if (b.dataset.rmtime != null && f) { f.times.splice(Number(b.dataset.rmtime), 1); if (!f.times.length) f.anyTime = true; return render(); }
+  if (b.dataset.skip && f) { const c = b.dataset.skip; f.skip = f.skip.includes(c) ? f.skip.filter((x) => x !== c) : [...f.skip, c]; return render(); }
+
+  // voting
+  if (b.dataset.vote && S.me) {
+    const oid = b.dataset.oid, v = b.dataset.vote; const a = (S.me.answers = S.me.answers || {});
+    if (a[oid] === v) delete a[oid]; else a[oid] = v;
+    queueSave(); render(); return;
+  }
+  if (b.hasAttribute("data-fill") && S.me) {
+    const v = b.dataset.fill; const a = (S.me.answers = S.me.answers || {});
+    if (!v) S.me.answers = {}; else S.poll.options.forEach((o) => { if (v === "y" || !a[o.id]) a[o.id] = v; });
+    queueSave(); render(); return;
+  }
+  if (b.dataset.going && S.me) { S.me.going = S.me.going === b.dataset.going ? "" : b.dataset.going; queueSave(); render(); return; }
+  if (b.hasAttribute("data-final")) {
+    const val = b.dataset.final || null;
+    try { const { poll } = await api(`/polls/${S.pid}`, { method: "PUT", headers: { "x-manage-token": orgToken(S.pid) }, body: { finalId: val } }); S.poll = poll; toast(val ? "Time locked in. Let everyone know!" : "Poll reopened"); S.tab = val ? "vote" : "results"; render(); window.scrollTo(0, 0); }
+    catch (err) { toast(err.message); }
+    return;
+  }
+
+  switch (b.dataset.act) {
+    case "add-time": { const last = f.times.filter(Boolean).slice(-1)[0] || "17:30"; const [h, m] = last.split(":").map(Number); f.times.push(`${pad((h + 1) % 24)}:${pad(m)}`); return render(); }
+    case "any-time": f.anyTime = !f.anyTime; if (!f.anyTime && !f.times.length) f.times = ["18:30"]; f.skip = []; return render();
+    case "cancel-form": { const id = f?.id; S.form = null; return go(id ? `/?p=${id}&t=results` : "/"); }
+    case "save-form": return saveForm();
+    case "native-share": { const p = S.created.poll; try { await navigator.share({ title: p.title, text: `Pick the times that work for you: ${p.title}`, url: `${ORIGIN}/?p=${p.id}` }); } catch {} return; }
+    case "show-join": S.tab = "vote"; S.me = null; history.replaceState(null, "", `/?p=${S.pid}`); return render();
+    case "my-link": { const c = myCreds(S.pid); if (c) copy(`${ORIGIN}/?p=${S.pid}&g=${c.id}.${c.token}`, "Personal link copied. Keep it private."); return; }
+    case "copy-invite": return copy(`${ORIGIN}/?p=${S.pid}`, "Invite link copied");
+    case "copy-manage": return copy(`${ORIGIN}/?p=${S.pid}&m=${orgToken(S.pid)}`, "Organizer link copied. Keep it private.");
+    case "edit": S.form = blankForm(S.poll); S.view = "create"; history.pushState(null, "", `/?p=${S.pid}&edit`); render(); window.scrollTo(0, 0); return;
+    case "ask-delete": S.confirmDelete = true; return render();
+    case "cancel-delete": S.confirmDelete = false; return render();
+    case "delete": try { await api(`/polls/${S.pid}`, { method: "DELETE", headers: { "x-manage-token": orgToken(S.pid) } }); forget(S.pid); S.poll = null; toast("Poll deleted"); go("/"); } catch (err) { toast(err.message); } return;
+    case "toggle-grid": S.showGrid = !S.showGrid; return render();
+    case "ics": return downloadIcs(S.poll, S.poll.options.find((o) => o.id === S.poll.finalId));
+  }
+});
+
+document.addEventListener("input", (e) => {
+  const el = e.target; const f = S.form;
+  if (f && S.view === "create") {
+    if (el.id === "f-title") f.title = el.value;
+    else if (el.id === "f-note") f.note = el.value;
+    else if (el.id === "f-loc") f.location = el.value;
+    else if (el.classList.contains("f-time")) f.times[Number(el.dataset.i)] = el.value;
+    return;
+  }
+  if (S.me && el.id === "my-note") { S.me.note = el.value; queueSave(); }
+  if (S.me && el.id === "my-name") { if (el.value.trim()) { S.me.name = el.value; LS.set("ct.name", el.value.trim()); queueSave(); } }
+});
+document.addEventListener("change", (e) => {
+  const el = e.target; const f = S.form; if (!f || S.view !== "create") return;
+  if (el.id === "f-dur") f.duration = Number(el.value);
+  if (el.classList.contains("f-time")) { f.skip = []; render(); }
+});
+document.addEventListener("submit", (e) => {
+  if (e.target.id === "joinForm") { e.preventDefault(); join($("#j-name").value); }
+  if (e.target.id === "pollForm") { e.preventDefault(); saveForm(); }
+});
+
+route();
+})();
+</script>
+</body>
+</html>
